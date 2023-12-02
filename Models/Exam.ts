@@ -7,7 +7,6 @@ export interface IExam {
     created: Date;
     startDate?: Date
     endDate?: Date
-
 }
 
 const examSchema = new Schema<IExam>({

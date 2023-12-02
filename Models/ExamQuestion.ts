@@ -3,9 +3,9 @@ import { IQuestion } from './Question';
 import { IExam } from './Exam';
 import { IOption } from './Option';
 export interface IExamQuestion {
-    question: [PopulatedDoc<Document<ObjectId> & IQuestion>];
-    exam: [PopulatedDoc<Document<ObjectId> & IExam>];
-    answer: [PopulatedDoc<Document<ObjectId> & IOption>];
+    question: PopulatedDoc<Document<ObjectId> & IQuestion>;
+    exam: PopulatedDoc<Document<ObjectId> & IExam>;
+    answer: IOption;
 }
 
 const examQuestionSchema = new Schema<IExamQuestion>({
