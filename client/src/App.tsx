@@ -25,6 +25,8 @@ function App() {
 function Home() {
 
   const [refId, setRefId] = useState<string>()
+  const [loading, setLoading] = useState(false)
+
   const navigate = useNavigate();
 
   const handleRefidChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +34,7 @@ function Home() {
   }
 
   const handleStart = useCallback(async () => {
-
+    setLoading(true)
     const response = await (await fetch("/api/exam/create", {
       method: "POST",
       headers: {
@@ -43,6 +45,7 @@ function Home() {
 
     const exam = response?.exam
     await (await fetch(`/api/exam/start?code=${exam.code}`)).json()
+    setLoading(false)
     navigate(`/exam/${exam._id}`)
 
   }, [refId])
@@ -74,8 +77,9 @@ function Home() {
       <div>
         <button
           type="button"
+          disabled={loading}
           onClick={handleStart}
-          className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          className="flex w-full justify-center rounded-md disabled:bg-slate-700 bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
         >
           Սկսել
         </button>
