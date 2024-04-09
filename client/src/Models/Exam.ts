@@ -5,7 +5,7 @@ export default interface Exam {
     code: string;
     refId: string;
     questions?: ExamQuestion[];
-    created: Date;
-    startDate?: Date
-    endDate?: Date
+    created: string;
+    startDate?: string
+    endDate?: string
 }

@@ -12,7 +12,7 @@ export const createExam: RequestHandler = async (req, res, next) => {
     })
 
     const randomQuestions = await Question.aggregate(
-        [{ $sample: { size: 2 } }]
+        [{ $sample: { size: 10 } }]
     )
 
     await exam.save();
@@ -48,7 +48,7 @@ export const startExam: RequestHandler = async (req, res, next) => {
     if (!exam)
         return res.status(404)
     if (exam.endDate)
-        return res.status(500).json({ message: "exam is ended" })
+        return res.status(302).json({ message: "exam is ended", exam })
     if (exam.startDate)
         return res.status(302).json({ message: "exam is already started", exam })
     exam.startDate = new Date();
@@ -75,17 +75,28 @@ export const endExam: RequestHandler = async (req, res, next) => {
     res.status(200).json({ exam });
 };
 
-
 export const examResults: RequestHandler = async (req, res, next) => {
     const id = req.query.id;
-    const answers = await ExamQuestion.find({ exam: id }).populate("answer")
+    const answers = await ExamQuestion.find({ exam: id })
+        .populate({
+            path: 'answer',
+            model: 'Option',
+            select: "is_correct"
+        })
     let count = 0;
     answers.forEach(a => {
-        
         if (a.answer.is_correct)
             count++
     })
-    res.status(200).json({ correctAnswersCount: count });
+    const exam = await Exam.findById(id).populate({
+        path: 'questions',
+        populate: {
+            path: 'answer',
+            model: 'Option',
+            select: "is_correct"
+        }
+    })
+    res.status(200).json({ correctAnswersCount: count, exam });
 };
 
 export const getExam: RequestHandler = async (req, res, next) => {
@@ -98,8 +109,8 @@ export const getExam: RequestHandler = async (req, res, next) => {
             populate: {
                 path: 'options',
                 model: 'Option',
-            }
-        }
+            },
+        },
     })
     if (!exam)
         return res.status(404)
@@ -111,7 +122,8 @@ export const getAll: RequestHandler = async (req, res, next) => {
         path: 'questions',
         populate: {
             path: 'answer',
-            model: 'Option'
+            model: 'Option',
+            select: "is_correct"
         }
     }).sort([['created', -1]])
     res.status(200).json({ exams });

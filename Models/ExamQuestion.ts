@@ -7,7 +7,7 @@ export interface IExamQuestion {
     exam: PopulatedDoc<Document<ObjectId> & IExam>;
     answer: IOption;
 }
-
+ 
 const examQuestionSchema = new Schema<IExamQuestion>({
     question: { type: Schema.Types.ObjectId, ref: 'Question' },
     exam: { type: Schema.Types.ObjectId, ref: 'Exam' },

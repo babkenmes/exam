@@ -6,5 +6,5 @@ export default interface ExamQuestion {
     _id: string;
     question: Question;
     exam: Exam;
-    answer?: QuestionOption;
+    answer?: QuestionOption | string;
 }
