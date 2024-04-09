@@ -75,7 +75,6 @@ db.once('open', function () {
     });
 });
 const app = (0, express_1.default)();
-app.use(express_1.default.static(path.join(__dirname, '../client/build')));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
@@ -86,6 +85,8 @@ app.use("/api/exam", exam_1.default);
 app.listen(PORT, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
 });
+app.use(express_1.default.static(path.join(__dirname, '../client/build')));
+app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
 const questions = [
     {
         "question": "Ո՞ր իրավական ակտով է կարգավորվում զենքի հետ կապված   հարաբերությունները Հայաuտանի Հանրապետությունում․",

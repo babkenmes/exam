@@ -44,7 +44,6 @@ db.once('open', async function () {
 
 const app: Express = express();
 
-app.use(express.static(path.join(__dirname, '../client/build')));
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -58,6 +57,10 @@ app.use("/api/exam", examRouter);
 app.listen(PORT, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
 });
+
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+app.get('*', (req, res) => res.sendFile(path.resolve('client', 'build', 'index.html')));
 
 
 const questions = [
