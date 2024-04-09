@@ -43,6 +43,9 @@ db.once('open', async function () {
 })
 
 const app: Express = express();
+
+app.use(express.static(path.join(__dirname, '../client/build')));
+
 app.use(bodyParser.urlencoded({
   extended: true
 }));

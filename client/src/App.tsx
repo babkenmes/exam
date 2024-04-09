@@ -31,7 +31,8 @@ function Home() {
     setRefId(e.target.value)
   }
 
-  const handleCreate = useCallback(async () => {
+  const handleStart = useCallback(async () => {
+
     const response = await (await fetch("/api/exam/create", {
       method: "POST",
       headers: {
@@ -39,9 +40,11 @@ function Home() {
       },
       body: JSON.stringify({ refId: `demo_${(Math.round(Math.random() * 10000)).toString()}` }),
     })).json()
+
     const exam = response?.exam
     await (await fetch(`/api/exam/start?code=${exam.code}`)).json()
     navigate(`/exam/${exam._id}`)
+
   }, [refId])
 
   return <div>
@@ -71,7 +74,7 @@ function Home() {
       <div>
         <button
           type="button"
-          onClick={handleCreate}
+          onClick={handleStart}
           className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
         >
           Սկսել
@@ -161,9 +164,9 @@ function CreateAxam() {
                   }
 
                 </div>
-                <p className="mt-3 truncate text-sm text-gray-500">
+                {/* <p className="mt-3 truncate text-sm text-gray-500">
                   Կոդ <span className="text-gray-400">{exam.code}</span>
-                </p>
+                </p> */}
               </li>
             )
           })}
@@ -250,12 +253,10 @@ function StartedExam() {
   }
   const expired = time && Number(time) <= 0
 
-  console.log("time", time)
-
   return <div>
     <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 rounded-lg bg-neutral-700/30">
       <div>Քննություն #{exam?.refId}</div>
-      <div>Կոդ {exam?.code}</div>
+      {/* <div>Կոդ {exam?.code}</div> */}
       {
         expired || exam?.endDate ?
           <div>Քննությունն ավարտվել է</div>
