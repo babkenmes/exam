@@ -2,11 +2,18 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, useParams, useNavigate } from "react-router-dom";
 import './App.css';
 import { useCallback, useEffect, useState } from "react";
-import Exam from "./Models/Exam"
-import Question from "./Models/Question";
+import Exam, { ExamResult } from "./Models/Exam"
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid'
 import ExamQuestion from "./Models/ExamQuestion";
 import { Wizard, useWizard } from "react-use-wizard";
 import QuestionOption from "./Models/QuestionOption";
+
+const plans = [
+  { name: 'Startup', priceMonthly: 29, priceYearly: 290, limit: 'Up to 5 active job postings' },
+  { name: 'Business', priceMonthly: 99, priceYearly: 990, limit: 'Up to 25 active job postings' },
+  { name: 'Enterprise', priceMonthly: 249, priceYearly: 2490, limit: 'Unlimited active job postings' },
+]
+
 function App() {
   return (
     <div className="container mx-auto text-slate-300 w-full p-4 bg-neutral-800">
@@ -55,23 +62,6 @@ function Home() {
       <p className="mx-auto max-w-xl">
         Բարի գալուստ առաջին անգամ զենքի ձեռքբերման տեսական քննությանը նախապատրաստվելու համար ստեղծված թեստային հարթակ։
       </p>
-      {/* <p>
-        Թեստային հարթակը հնարավորություն է տալիս՝
-
-      </p>
-
-      <ul>
-        <li>Հարցերի միջև տեղաշարժվել,</li>
-        <li>Հարցի պատասխանը տեղում ստուգել,</li>
-        <li>Ճիշտ պատասխանն իմանալ։</li>
-      </ul>
-      <p>
-        Իրական քննության ժամանակ, այս բոլոր հնարավորությունները բացակայելու են։
-      </p>
-      <p>
-        Տեսական քննության բոլոր հարցերը հասանելի են հետևյալ հղումով։
-      </p> */}
-
     </div>
     <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-4">
       <div>
@@ -149,7 +139,7 @@ function CreateAxam() {
     {
       exams && Number(exams?.length) > 0 &&
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-4">
-        <ul role="list" className="divide-y divide-white/5">
+        <ul className="divide-y divide-white/5">
           {exams.map((exam) => {
             let correctAnswers = 0
             exam.questions?.forEach(q => {
@@ -166,11 +156,7 @@ function CreateAxam() {
                       {correctAnswers}/{exam.questions?.length}
                     </div>
                   }
-
                 </div>
-                {/* <p className="mt-3 truncate text-sm text-gray-500">
-                  Կոդ <span className="text-gray-400">{exam.code}</span>
-                </p> */}
               </li>
             )
           })}
@@ -239,13 +225,16 @@ function StartedExam() {
 
   useEffect(() => {
     console.log("exam", exam)
-    if (exam) {
-      const timer = setInterval(() => {
+
+    const timer = setInterval(() => {
+      if (exam) {
         console.log("exam?.startDate", exam?.startDate)
 
         exam?.startDate && setTime((30 * 60) - Math.floor((Date.now() - new Date(exam.startDate).getTime()) / 1000));
-      }, 1000);
-    }
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, [exam])
 
   const getExam = async (id: string) => {
@@ -260,6 +249,7 @@ function StartedExam() {
   return <div>
     <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 rounded-lg bg-neutral-700/30">
       <div>Քննություն #{exam?.refId}</div>
+
       {/* <div>Կոդ {exam?.code}</div> */}
       {
         expired || exam?.endDate ?
@@ -269,29 +259,34 @@ function StartedExam() {
       }
     </div>
 
-    <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 border border-indigo-950 rounded-lg bg-neutral-700/60">
-      {
-        exam?.endDate || (expired) ?
-          <div>
-            <ExamResults examId={id} />
-          </div>
-          : <Wizard>
+    {
+      exam?.endDate || (expired) ?
+        <div>
+          <ExamResults examId={id} />
+        </div>
+        :
+        <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 border border-indigo-950 rounded-lg bg-neutral-700/60">
+          <Wizard>
             {
-              exam?.questions?.map(q => <QuestionStep
+              exam?.questions?.map((q, index) => <QuestionStep
                 key={q._id}
+                index={index}
                 question={q}
                 refetchExam={getExam}
                 examId={id as string} />)
             }
           </Wizard>
-      }
-    </div>
+        </div>
+
+    }
   </div>
 }
 
 function ExamResults({ examId }: { examId: string }) {
   const [correctAnswers, setCorrectAnswers] = useState<number>()
-  const [exam, setExam] = useState<Exam>()
+  const [exam, setExam] = useState<ExamResult>()
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -301,18 +296,66 @@ function ExamResults({ examId }: { examId: string }) {
     })()
   }, [examId])
 
+  const handleReset = useCallback(async () => {
+    navigate(`/`)
+  }, [])
+
+
   return <div className="space-y-4">
-    <div>Քննության արդյունքները</div>
-    <div className="space-x-2">
-      <span className="text-slate-400">Ճիշտ պատասխան՝</span> <span>{correctAnswers} / {exam?.questions?.length}</span>
+    <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 border border-indigo-950 rounded-lg bg-neutral-700/60">
+      <div>Քննության արդյունքները</div>
+      <div className="space-x-2">
+        <span className="text-slate-400">Ճիշտ պատասխան՝</span> <span>{correctAnswers} / {exam?.questions?.length}</span>
+      </div>
     </div>
-  </div>
+    <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 rounded-lg">
+      <button
+        type="button"
+        onClick={handleReset}
+        className="flex w-full justify-center rounded-md disabled:bg-slate-700 bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+      >
+        Կրկին փորձել
+      </button>
+    </div>
+    {
+      exam?.questions?.map((question, index) => {
+        return <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 border border-indigo-950 rounded-lg bg-neutral-700/60">
+          <div className="space-y-6">
+            <p className="text-white text-base font-semibold">{question?.question.text}</p>
+            <fieldset className="mt-4" id={index.toString()}>
+              <legend className="sr-only">Question</legend>
+              <div className="mt-4 divide-y divide-gray-700 border-b border-t border-gray-700">
+                {question?.question?.options?.map((option) => {
+                  return (
+                    <div key={option._id} className="grid grid-cols-8 items-center py-4">
+                      <input
+                        id={option._id}
+                        name={index.toString()}
+                        type="radio"
+                        checked={option._id === question.answer?._id}
+                        className="h-[20px] w-[20px] inline"
+                      />
+                      <label htmlFor={option._id} className={`${option._id === question.answer?._id ? (question.answer.is_correct ? 'text-green-300' : 'text-red-300') : option.is_correct ? 'text-green-300' : 'text-gray-300'}  col-span-7 cursor-pointer block text-sm font-medium leading-6 `}>
+                        {option.text}
+                      </label>
+                    </div>
+                  )
+                })}
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      })
+    }
+  </div >
+
 }
 
-function QuestionStep({ question, examId, refetchExam }: { question: ExamQuestion, examId: string; refetchExam: (id: string) => Promise<void> }) {
-  const { nextStep, isLastStep } = useWizard();
-  const [selectedOptionId, setSelectedOptionId] = useState<string | undefined>(question?.answer as string)
 
+function QuestionStep({ question, examId, refetchExam, index }: { question: ExamQuestion, examId: string; refetchExam: (id: string) => Promise<void>, index: number }) {
+  const { nextStep, isLastStep, previousStep, isFirstStep } = useWizard();
+  const [selectedOptionId, setSelectedOptionId] = useState<string | undefined>(question?.answer as string)
+  const [loading, setLoading] = useState(false)
   const handleInputChange = useCallback(async (optionId: string) => {
     setSelectedOptionId(optionId)
   }, [question])
@@ -322,30 +365,38 @@ function QuestionStep({ question, examId, refetchExam }: { question: ExamQuestio
     nextStep()
   }, [selectedOptionId, question])
 
+  const handlePrevious = useCallback(async () => {
+    await fetch(`/api/exam/answer?questionId=${question._id}&answerId=${selectedOptionId}`)
+    previousStep()
+  }, [selectedOptionId, question])
+
   const handleEndExam = useCallback(async () => {
+    setLoading(true)
     await fetch(`/api/exam/answer?questionId=${question._id}&answerId=${selectedOptionId}`)
     await fetch(`/api/exam/end?id=${examId}`)
     await refetchExam(examId)
+    setLoading(false)
     nextStep()
   }, [examId, selectedOptionId, question])
 
-  return <div className="space-y-4">
+  return <div className="space-y-6">
+    {index}/10
     <p className="text-white text-base font-semibold">{question.question.text}</p>
     <fieldset className="mt-4">
-      <legend className="sr-only">Notification method</legend>
-      <div className="space-y-4">
+      <legend className="sr-only">Question</legend>
+      <div className="mt-4 divide-y divide-gray-700 flex-shrink-0 border-b border-t border-gray-700">
         {question.question.options.map((option) => {
           return (
-            <div key={option._id} className="flex items-center">
+            <div key={option._id} className="flex shrink-0 space-x-2 items-center py-4">
               <input
                 onChange={() => handleInputChange(option._id)}
                 id={option._id}
                 name="notification-method"
                 type="radio"
                 defaultChecked={question?.answer === option._id}
-                className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
+                className="h-5 w-5 inline shrink-0 "
               />
-              <label htmlFor={option._id} className="cursor-pointer ml-3 block text-sm font-medium leading-6 text-gray-300">
+              <label htmlFor={option._id} className="col-span-7 shrink md:col-span-11 cursor-pointer block text-sm font-medium leading-6 text-gray-300">
                 {option.text}
               </label>
             </div>
@@ -353,7 +404,18 @@ function QuestionStep({ question, examId, refetchExam }: { question: ExamQuestio
         })}
       </div>
     </fieldset>
-    <div className="flex space-x-4">
+    <div className="flex grow space-x-2">
+      {
+        !isFirstStep && <button
+          type="button"
+          disabled={!selectedOptionId}
+          onClick={handlePrevious}
+          className="basis-1/4 space-x-2 items-center flex w-full disabled:bg-neutral-500 disabled:cursor-not-allowed disabled:text-slate-300 justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        >
+          <ChevronLeftIcon className="w-5 h-5" />
+          <span className="grow content-end text-right">Նախորդը</span>
+        </button>
+      }
       {
         isLastStep ? <button
           type="button"
@@ -364,16 +426,18 @@ function QuestionStep({ question, examId, refetchExam }: { question: ExamQuestio
           Ավարտել քննությունը
         </button>
           :
+
+
           <button
             type="button"
-            disabled={!selectedOptionId}
             onClick={handleNext}
-            className="flex w-full disabled:bg-neutral-500 disabled:cursor-not-allowed disabled:text-slate-300 justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            disabled={!selectedOptionId}
+            className="grow flex items-center w-full disabled:bg-neutral-500 disabled:cursor-not-allowed disabled:text-slate-300 justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
           >
-            Հաջորդը
+            <span className="grow content-start text-left">Հաջորդը</span>
+            <ChevronRightIcon className="w-5 h-5" />
           </button>
       }
-
     </div>
   </div>
 }

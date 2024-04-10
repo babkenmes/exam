@@ -91,9 +91,8 @@ export const examResults: RequestHandler = async (req, res, next) => {
     const exam = await Exam.findById(id).populate({
         path: 'questions',
         populate: {
-            path: 'answer',
-            model: 'Option',
-            select: "is_correct"
+            path: 'question',
+            model: 'Question',
         }
     })
     res.status(200).json({ correctAnswersCount: count, exam });
