@@ -64,7 +64,7 @@ function Home() {
 
   return <div>
     <div className="text-center">
-      <p className="mx-auto text-lg max-w-xl">
+      <p className="mx-auto text-lg max-w-xl mt-32 md:mt-2">
         Բարի գալուստ առաջին անգամ զենքի ձեռքբերման տեսական քննությանը նախապատրաստվելու համար ստեղծված թեստային հարթակ։
       </p>
     </div>
