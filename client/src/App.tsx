@@ -217,19 +217,19 @@ function StartedExam() {
   let { id } = useParams();
   const [exam, setExam] = useState<Exam>()
   const [time, setTime] = useState<number>()
-
+  const [cachedData, setCachedData] = useState<{ [key: string]: string }>({})
+  console.log("cachedData", cachedData)
+  const updateCache = (key: string, value: string) => {
+    setCachedData(d => ({ ...cachedData, [key]: value }))
+  }
   useEffect(() => {
     if (id)
       getExam(id)
   }, [id])
 
   useEffect(() => {
-    console.log("exam", exam)
-
     const timer = setInterval(() => {
       if (exam) {
-        console.log("exam?.startDate", exam?.startDate)
-
         exam?.startDate && setTime((30 * 60) - Math.floor((Date.now() - new Date(exam.startDate).getTime()) / 1000));
       }
     }, 1000);
@@ -269,6 +269,8 @@ function StartedExam() {
           <Wizard>
             {
               exam?.questions?.map((q, index) => <QuestionStep
+                cachedData={cachedData}
+                updateCache={updateCache}
                 key={q._id}
                 index={index}
                 question={q}
@@ -352,12 +354,25 @@ function ExamResults({ examId }: { examId: string }) {
 }
 
 
-function QuestionStep({ question, examId, refetchExam, index }: { question: ExamQuestion, examId: string; refetchExam: (id: string) => Promise<void>, index: number }) {
+function QuestionStep({ question, examId, refetchExam, index, updateCache, cachedData }
+  : {
+    question: ExamQuestion,
+    examId: string;
+    refetchExam: (id: string) => Promise<void>,
+    index: number,
+    cachedData: { [key: string]: string },
+    updateCache: (key: string, value: string) => void
+  }) {
   const { nextStep, isLastStep, previousStep, isFirstStep } = useWizard();
-  const [selectedOptionId, setSelectedOptionId] = useState<string | undefined>(question?.answer as string)
+
+  const initialValue = cachedData[question._id] ? cachedData[question._id] : question?.answer as string
+
+  const [selectedOptionId, setSelectedOptionId] = useState<string | undefined>(initialValue)
   const [loading, setLoading] = useState(false)
+
   const handleInputChange = useCallback(async (optionId: string) => {
     setSelectedOptionId(optionId)
+    updateCache(question._id, optionId)
   }, [question])
 
   const handleNext = useCallback(async () => {
@@ -379,6 +394,7 @@ function QuestionStep({ question, examId, refetchExam, index }: { question: Exam
     nextStep()
   }, [examId, selectedOptionId, question])
 
+
   return <div className="space-y-6">
     {index}/10
     <p className="text-white text-base font-semibold">{question.question.text}</p>
@@ -393,7 +409,7 @@ function QuestionStep({ question, examId, refetchExam, index }: { question: Exam
                 id={option._id}
                 name="notification-method"
                 type="radio"
-                defaultChecked={question?.answer === option._id}
+                checked={selectedOptionId === option._id}
                 className="h-5 w-5 inline shrink-0 "
               />
               <label htmlFor={option._id} className="col-span-7 shrink md:col-span-11 cursor-pointer block text-sm font-medium leading-6 text-gray-300">
@@ -408,7 +424,7 @@ function QuestionStep({ question, examId, refetchExam, index }: { question: Exam
       {
         !isFirstStep && <button
           type="button"
-          disabled={!selectedOptionId}
+          disabled={!selectedOptionId || loading}
           onClick={handlePrevious}
           className="basis-1/4 space-x-2 items-center flex w-full disabled:bg-neutral-500 disabled:cursor-not-allowed disabled:text-slate-300 justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
         >
@@ -419,15 +435,13 @@ function QuestionStep({ question, examId, refetchExam, index }: { question: Exam
       {
         isLastStep ? <button
           type="button"
-          disabled={!selectedOptionId}
+          disabled={!selectedOptionId || loading}
           onClick={handleEndExam}
           className="flex w-full disabled:bg-neutral-500 disabled:text-slate-300 disabled:cursor-not-allowed justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
         >
           Ավարտել քննությունը
         </button>
           :
-
-
           <button
             type="button"
             onClick={handleNext}

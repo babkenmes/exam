@@ -96,9 +96,21 @@ const examResults = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     const exam = yield Exam_1.default.findById(id).populate({
         path: 'questions',
         populate: {
+            path: 'answer',
+            model: 'Option',
+            select: "is_correct"
+        }
+    }).populate({
+        path: 'questions',
+        populate: {
             path: 'question',
             model: 'Question',
-        }
+            populate: {
+                path: 'options',
+                model: 'Option',
+                select: ["is_correct", "text"]
+            },
+        },
     });
     res.status(200).json({ correctAnswersCount: count, exam });
 });
