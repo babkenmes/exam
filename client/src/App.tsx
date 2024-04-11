@@ -69,7 +69,7 @@ function Home() {
           type="button"
           disabled={loading}
           onClick={handleStart}
-          className="flex w-full justify-center rounded-md disabled:bg-slate-700 bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          className="flex w-full justify-center rounded-md disabled:bg-slate-700 bg-azatazen-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-azatazen-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azatazen-primary"
         >
           Սկսել
         </button>
@@ -122,7 +122,7 @@ function CreateAxam() {
             type="text"
             required
             onChange={handleRefidChange}
-            className="block w-full rounded-md border-0 bg-white/5 py-1.5 px-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+            className="block w-full rounded-md border-0 bg-white/5 py-1.5 px-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-azatazen-primary sm:text-sm sm:leading-6"
           />
         </div>
       </div>
@@ -130,7 +130,7 @@ function CreateAxam() {
         <button
           type="button"
           onClick={handleCreate}
-          className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          className="flex w-full justify-center rounded-md bg-azatazen-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-azatazen-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azatazen-primary"
         >
           Ստեղծել
         </button>
@@ -195,7 +195,7 @@ function ExamComponent() {
             type="text"
             required
             onChange={handleCodeChange}
-            className="block w-full cursor-pointer rounded-md border-0 bg-white/5 py-1.5 px-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+            className="block w-full cursor-pointer rounded-md border-0 bg-white/5 py-1.5 px-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-azatazen-primary sm:text-sm sm:leading-6"
           />
         </div>
       </div>
@@ -203,7 +203,7 @@ function ExamComponent() {
         <button
           type="button"
           onClick={onStart}
-          className="flex w-full cursor-pointer justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          className="flex w-full cursor-pointer justify-center rounded-md bg-azatazen-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-azatazen-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azatazen-primary"
         >
           Սկսել
         </button>
@@ -306,15 +306,15 @@ function ExamResults({ examId }: { examId: string }) {
   return <div className="space-y-4">
     <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 border border-indigo-950 rounded-lg bg-neutral-700/60">
       <div>Քննության արդյունքները</div>
-      <div className="space-x-2">
-        <span className="text-slate-400">Ճիշտ պատասխան՝</span> <span>{correctAnswers} / {exam?.questions?.length}</span>
+      <div className="space-x-2 flex items-center">
+        <span className="text-slate-400">Ճիշտ պատասխան՝</span> {exam ? <span>{correctAnswers} / {exam?.questions?.length}</span> : <div className="h-4 w-20 animate-pulse bg-gray-500 rounded"></div>}
       </div>
     </div>
     <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 rounded-lg">
       <button
         type="button"
         onClick={handleReset}
-        className="flex w-full justify-center rounded-md disabled:bg-slate-700 bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        className="flex w-full justify-center rounded-md disabled:bg-slate-700 bg-azatazen-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-azatazen-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azatazen-primary"
       >
         Կրկին փորձել
       </button>
@@ -381,7 +381,7 @@ function QuestionStep({ question, examId, refetchExam, index, updateCache, cache
   }, [selectedOptionId, question])
 
   const handlePrevious = useCallback(async () => {
-    await fetch(`/api/exam/answer?questionId=${question._id}&answerId=${selectedOptionId}`)
+    selectedOptionId && await fetch(`/api/exam/answer?questionId=${question._id}&answerId=${selectedOptionId}`)
     previousStep()
   }, [selectedOptionId, question])
 
@@ -424,9 +424,9 @@ function QuestionStep({ question, examId, refetchExam, index, updateCache, cache
       {
         !isFirstStep && <button
           type="button"
-          disabled={!selectedOptionId || loading}
+          disabled={loading}
           onClick={handlePrevious}
-          className="basis-1/4 space-x-2 items-center flex w-full disabled:bg-neutral-500 disabled:cursor-not-allowed disabled:text-slate-300 justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          className="basis-1/4 space-x-2 items-center flex w-full disabled:bg-neutral-500 disabled:cursor-not-allowed disabled:text-slate-300 justify-center rounded-md bg-azatazen-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-azatazen-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azatazen-primary"
         >
           <ChevronLeftIcon className="w-5 h-5" />
           <span className="grow content-end text-right">Նախորդը</span>
@@ -437,7 +437,7 @@ function QuestionStep({ question, examId, refetchExam, index, updateCache, cache
           type="button"
           disabled={!selectedOptionId || loading}
           onClick={handleEndExam}
-          className="flex w-full disabled:bg-neutral-500 disabled:text-slate-300 disabled:cursor-not-allowed justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          className="flex w-full disabled:bg-neutral-500 disabled:text-slate-300 disabled:cursor-not-allowed justify-center rounded-md bg-azatazen-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-azatazen-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azatazen-primary"
         >
           Ավարտել քննությունը
         </button>
@@ -446,7 +446,7 @@ function QuestionStep({ question, examId, refetchExam, index, updateCache, cache
             type="button"
             onClick={handleNext}
             disabled={!selectedOptionId}
-            className="grow flex items-center w-full disabled:bg-neutral-500 disabled:cursor-not-allowed disabled:text-slate-300 justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            className="grow flex items-center w-full disabled:bg-neutral-500 disabled:cursor-not-allowed disabled:text-slate-300 justify-center rounded-md bg-azatazen-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-azatazen-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azatazen-primary"
           >
             <span className="grow content-start text-left">Հաջորդը</span>
             <ChevronRightIcon className="w-5 h-5" />
