@@ -1,9 +1,8 @@
 import ExamQuestion from "./ExamQuestion";
 
 export default interface Exam {
-    questions?: ExamQuestion[];
-    created?: string;
-    startDate?: string
+    questions: ExamQuestion[];
+    startDate: string
     endDate?: string
 }
 

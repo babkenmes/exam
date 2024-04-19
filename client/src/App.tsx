@@ -85,7 +85,11 @@ function StartedExam() {
   useEffect(() => {
     const timer = setInterval(() => {
       if (exam) {
-        exam?.startDate && setTime((30 * 60) - Math.floor((Date.now() - new Date(exam.startDate).getTime()) / 1000));
+        const timePassed = Math.floor((Date.now() - new Date(exam.startDate).getTime()) / 1000)
+        if (timePassed > 0)
+          exam?.startDate && setTime((30 * 60) - Math.floor((Date.now() - new Date(exam.startDate).getTime()) / 1000));
+        else
+          setTime(timePassed)
       }
     }, 1000);
     return () => clearInterval(timer);
@@ -140,7 +144,7 @@ function StartedExam() {
 function ExamResults({ exam }: { exam: Exam }) {
 
   const correctAnswers = exam?.questions?.filter(q => q.answer !== undefined && q.question.options[q.answer].is_correct).length
-  
+
   const navigate = useNavigate();
 
   const handleReset = useCallback(async () => {
