@@ -76,6 +76,10 @@ function StartedExam() {
     if (exam) {
       setExam(exam)
     }
+    else {
+      const newExam = GetNewExam()
+      setExam(newExam)
+    }
   }, [])
 
   useEffect(() => {
