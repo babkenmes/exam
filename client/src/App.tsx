@@ -49,7 +49,7 @@ function Home() {
     <div className="text-center">
       <p className="mx-auto text-lg max-w-xl mt-32 md:mt-2">
         Այստեղ կարող եք առցանց փորձել տեսական քննությունը, պատասխանելով հարցաշարից 10 պատահական հարցերի, ինչպես որ կլինի իրական քննության ընթացքում։
-        Ուշադրություն․ մեկ-երկու անգամ այս թեստը հաջող անցնելը դեռ չի նշանակում որ նույնը կհաջողվի քննության ժամանակ։ Խորհուրդ ենք տալիս կարդալ ամբողջ <a target="_blank" className="underline text-azatazen-primary text-dec " href="https://drive.google.com/file/d/1SMOMysYKM1WDAxSQuyWlxRY7L0gpgZw1/view">հարցաշարը</a> և թեստը փորձել բազմաթիվ անգամ։      </p>
+        Ուշադրություն․ մեկ-երկու անգամ այս թեստը հաջող անցնելը դեռ չի նշանակում որ նույնը կհաջողվի քննության ժամանակ։ Խորհուրդ ենք տալիս կարդալ ամբողջ <a target="_blank" className="underline text-azatazen-primary text-dec " href="https://drive.google.com/file/d/1BvbG--ORjZWiGU0CKMptprdCG8HmN1zV/view?usp=drive_link">հարցաշարը</a> և թեստը փորձել բազմաթիվ անգամ։      </p>
     </div>
     <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-4">
       <div>
