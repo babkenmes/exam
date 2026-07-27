@@ -1,72 +1,14 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import './App.css';
+'use client'
+
 import { useCallback, useEffect, useState } from "react";
-import Exam from "./Models/Exam"
+import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid'
-import ExamQuestion from "./Models/ExamQuestion";
 import { Wizard, useWizard } from "react-use-wizard";
-import { AnswerQuestion, EndExam, GetNewExam } from "./Helpers/Exam";
+import Exam from "../../Models/Exam"
+import ExamQuestion from "../../Models/ExamQuestion";
+import { AnswerQuestion, EndExam, GetNewExam } from "../../Helpers/Exam";
 
-const Logo = () => {
-  return (
-    <svg className='h-11 w-auto m-auto' id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580.77 121.4"><defs></defs><path className="cls-1" d="M189.54,94.93V0h22.09V117ZM173.92,0V101.4l20,20H151.83V0Z" /><path className="cls-1" d="M113.25,20.15H98.38V48.32H76.29V14.88L92.26,0h43.08V85.2L127,101.4h8.37v20h-59V88.57H98.38V101.4h5.35L113.25,83Z" /><polygon className="cls-1" points="580.77 121.4 518.53 121.4 518.53 22.09 496.44 22.09 496.44 0 518.53 0 540.62 0 540.62 101.4 558.68 101.4 558.68 68.71 580.77 68.71 580.77 121.4" /><polygon className="cls-1" points="454.36 121.4 454.36 0 476.44 0 476.44 41.85 496.44 41.85 496.44 61.85 476.44 61.85 476.44 101.4 507.34 101.4 507.34 121.4 454.36 121.4" /><polygon className="cls-1" points="286.03 121.4 228.12 121.4 228.12 72.54 250.21 72.54 250.21 101.4 263.94 101.4 263.94 68.61 228.87 42.17 228.87 0 285.44 0 285.44 31.34 265.39 31.34 265.39 20.15 250.96 20.15 250.96 33.91 286.03 60.27 286.03 121.4" /><path className="cls-1" d="M340.23,94.93V0h22.09V117ZM324.61,0V101.4l20,20H302.52V0Z" /><path className="cls-1" d="M415.77,20.15H400.9V48.32H378.81V14.88L394.78,0h43.08V85.2l-8.37,16.2h8.37v20H378.81V88.57H400.9V101.4h5.35L415.77,83Z" /><path className="cls-1" d="M37.71,94.93V51.21l14.9-14.9-14.9-14.9V0H59.8V117ZM22.09,0V103.33L40.16,121.4H0V0Z" /></svg>
-  )
-}
-
-function App() {
-  return (
-    <div className="container mx-auto text-slate-300 w-full p-4 bg-neutral-800">
-      <div className="md:pt-8">
-        <Logo />
-      </div>
-      <div className="mx-auto max-w-2xl md:py-32 ">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/exam" element={<StartedExam />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
-    </div>
-  );
-}
-
-function Home() {
-
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate();
-
-  const handleStart = useCallback(async () => {
-    setLoading(true)
-
-    const exam = GetNewExam()
-    setLoading(false)
-    navigate(`/exam`)
-
-  }, [])
-
-  return <div>
-    <div className="text-center">
-      <p className="mx-auto text-lg max-w-xl mt-32 md:mt-2">
-        Այստեղ կարող եք առցանց փորձել տեսական քննությունը, պատասխանելով հարցաշարից 10 պատահական հարցերի, ինչպես որ կլինի իրական քննության ընթացքում։
-        Ուշադրություն․ մեկ-երկու անգամ այս թեստը հաջող անցնելը դեռ չի նշանակում որ նույնը կհաջողվի քննության ժամանակ։ Խորհուրդ ենք տալիս կարդալ ամբողջ <a target="_blank" className="underline text-azatazen-primary text-dec " href="https://drive.google.com/file/d/1BvbG--ORjZWiGU0CKMptprdCG8HmN1zV/view?usp=drive_link">հարցաշարը</a> և թեստը փորձել բազմաթիվ անգամ։      </p>
-    </div>
-    <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-4">
-      <div>
-        <button
-          type="button"
-          disabled={loading}
-          onClick={handleStart}
-          className="flex w-full justify-center rounded-md disabled:bg-slate-700 bg-azatazen-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-azatazen-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azatazen-primary"
-        >
-          Սկսել քննությունը
-        </button>
-      </div>
-    </div>
-  </div >
-}
-
-function StartedExam() {
+export default function StartedExam() {
   const [exam, setExam] = useState<Exam>()
   const [time, setTime] = useState<number>()
 
@@ -145,11 +87,11 @@ function ExamResults({ exam }: { exam: Exam }) {
 
   const correctAnswers = exam?.questions?.filter(q => q.answer !== undefined && q.question.options[q.answer].is_correct).length
 
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleReset = useCallback(async () => {
-    navigate(`/`)
-  }, [])
+    router.push(`/`)
+  }, [router])
 
   return <div className="space-y-4">
     <div className="mt-10 sm:mx-auto space-y-4 max-w-3xl p-4 border border-indigo-950 rounded-lg bg-neutral-700/60">
@@ -298,6 +240,3 @@ function QuestionStep({ question, index, answer, endExam }
     </div>
   </div>
 }
-
-
-export default App;
